@@ -1,3 +1,5 @@
+package observer;
+
 public interface Observable {
 
     void attach(IObserver observer);

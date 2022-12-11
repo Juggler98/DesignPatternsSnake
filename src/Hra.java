@@ -1,17 +1,23 @@
-import sun.management.jdp.JdpGenericPacket;
+import movingModels.Hadik;
+import movingModels.IMovingObject;
+import observer.IObserver;
+import observer.ObservableKeyAdapter;
+import observer.Observable;
+import other.Obtiaznost;
+import staticModels.Jedlo;
+import utility.Config;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Random;
 
 /**
  * Tato metoda riadi najdolezitejsie procesy ako pohyb hada, kontroly kolizie, vstup a vystup udajov, nastavenie naročnosti...
- * Tak isto vytvari vacsinu instancii tried ako sú Hadik, Jedlo, Hrac, HraciePole.
+ * Tak isto vytvari vacsinu instancii tried ako sú moving.Hadik, staticModels.Jedlo, Hrac, HraciePole.
  *
  * @author (Adam Beliansky)
  * @version (a version number or a date)
@@ -30,8 +36,8 @@ public class Hra extends JPanel implements ActionListener, IObserver {
 //
 //        addKeyListener(manazer);
 
-        MyKeyAdapter myKeyAdapter = new MyKeyAdapter();
-        addKeyListener(myKeyAdapter);
+        ObservableKeyAdapter observableKeyAdapter = new ObservableKeyAdapter();
+        addKeyListener(observableKeyAdapter);
 
 //        try {
 //            this.meno = JOptionPane.showInputDialog(null, "Tvoje meno:", "Meno", JOptionPane.QUESTION_MESSAGE).toLowerCase();
@@ -65,9 +71,9 @@ public class Hra extends JPanel implements ActionListener, IObserver {
         snakes.add(new Hadik(keys2));
 
 
-        myKeyAdapter.attach((IObserver) snakes.get(0));
-        myKeyAdapter.attach((IObserver) snakes.get(1));
-        myKeyAdapter.attach(this);
+        observableKeyAdapter.attach((IObserver) snakes.get(0));
+        observableKeyAdapter.attach((IObserver) snakes.get(1));
+        observableKeyAdapter.attach(this);
 //        manazer.spravujObjekt(snakes.get(0));
 //        manazer.spravujObjekt(snakes.get(1));
 //        manazer.spravujObjekt(this);
@@ -119,47 +125,10 @@ public class Hra extends JPanel implements ActionListener, IObserver {
         }
     }
 
-//    /**
-//     * Prijima spravu z Manazera a na stlacenie prislusnej sipky reaguje.
-//     */
-//    public void posunVpravo(int key) {
-//        for (Hadik hadik : snakes) {
-//            hadik.right(key);
-//        }
-//
-//    }
-//
-//    /**
-//     * Prijima spravu z Manazera a na stlacenie prislusnej sipky reaguje.
-//     */
-//    public void posunVlavo(int key) {
-//        for (Hadik hadik : snakes) {
-//            hadik.left(key);
-//        }
-//    }
-//
-//    /**
-//     * Prijima spravu z Manazera a na stlacenie prislusnej sipky reaguje.
-//     */
-//    public void posunHore(int key) {
-//        for (Hadik hadik : snakes) {
-//            hadik.up(key);
-//        }
-//    }
-//
-//    /**
-//     * Prijima spravu z Manazera a na stlacenie prislusnej sipky reaguje.
-//     */
-//    public void posunDole(int key) {
-//        for (Hadik hadik : snakes) {
-//            hadik.down(key);
-//        }
-//    }
-
     /**
      * Toto je mensi cheat. Pri stlaceni klavesy Q sa prida hadikovy dalsi clanok, ale skore sa nazvacsi. Sluzi len na testovanie funkcnosti predlzovania.
      */
-    public void newPoint() {
+    private void newPoint() {
         for (IMovingObject h : snakes) {
             Hadik hadik = (Hadik) h;
             hadik.pridajClanok();
@@ -170,7 +139,7 @@ public class Hra extends JPanel implements ActionListener, IObserver {
      * Tato metoda sa opakuje podla dlzky tiku nastaveneho v Managerovi.
      * Kontroluje koliziu, styk s jedlom a posuva hadika.
      */
-    public void tik() {
+    private void tik() {
         checkApple();
         for (IMovingObject hadik : snakes) {
             hadik.move();
@@ -190,28 +159,28 @@ public class Hra extends JPanel implements ActionListener, IObserver {
     /**
      * Dalsi cheat. Stlacenim klavesu 1 na anglickej klavesnici nad pismenami sa zmeni rychlost hadika. Sluzi len na testovanie
      */
-    public void easy() {
+    private void easy() {
         timer.setDelay(Config.easyDelay);
     }
 
     /**
      * Dalsi cheat. Stlacenim klavesu 2 na anglickej klavesnici nad pismenami sa zmeni rychlost hadika. Sluzi len na testovanie
      */
-    public void middle() {
+    private void middle() {
         timer.setDelay(Config.middleDelay);
     }
 
     /**
      * Dalsi cheat. Stlacenim klavesu 3 na anglickej klavesnici nad pismenami sa zmeni rychlost hadika. Sluzi len na testovanie
      */
-    public void hard() {
+    private void hard() {
         timer.setDelay(Config.hardDelay);
     }
 
     /**
      * Pozastavi/spusti pohyb hadika.
      */
-    public boolean pause() {
+    private boolean pause() {
         this.pauza = !this.pauza;
         return this.pauza;
     }
@@ -219,7 +188,7 @@ public class Hra extends JPanel implements ActionListener, IObserver {
     /**
      * Vypne hru pri stlaceni Esc.
      */
-    public void cancel() {
+    private void cancel() {
         System.exit(0);
     }
 
@@ -253,9 +222,9 @@ public class Hra extends JPanel implements ActionListener, IObserver {
 //        }
 //        //kontrola narazenia do okraja
 //        if (this.hadik.getPredokX() < 0 ||
-//                this.hadik.getPredokX() > (Config.rozmerPlatna / Config.rozmerBodu - 1) ||
+//                this.hadik.getPredokX() > (utility.Config.rozmerPlatna / utility.Config.rozmerBodu - 1) ||
 //                this.hadik.getPredokY() < 0 ||
-//                this.hadik.getPredokY() > (Config.rozmerPlatna /  Config.rozmerBodu) - 1) {
+//                this.hadik.getPredokY() > (utility.Config.rozmerPlatna /  utility.Config.rozmerBodu) - 1) {
 //            return true;
 //        }
         return false;
@@ -269,7 +238,7 @@ public class Hra extends JPanel implements ActionListener, IObserver {
      * Tato funkcionalita sluzi len na testovanie.
      */
     public void restart() {
-//        this.smer = Smer.STOJ;
+//        this.smer = position.Smer.STOJ;
         this.hrac.zistiNajvyssie(this.obtiaznost);
         JOptionPane.showMessageDialog(null, hrac.getMeno() + " prehral si. Tvoje skore: " + this.hrac.getSkore(), "Skore", JOptionPane.PLAIN_MESSAGE);
         JOptionPane.showMessageDialog(null, this.hrac.getStatistika().getSkore().vypis(), "Leaderboard" + " " + this.obtiaznost.toString().toLowerCase(), JOptionPane.PLAIN_MESSAGE);
@@ -296,58 +265,32 @@ public class Hra extends JPanel implements ActionListener, IObserver {
 
     @Override
     public void update(Observable observable) {
+        ObservableKeyAdapter observableKeyAdapter = (ObservableKeyAdapter) observable;
+        int key = observableKeyAdapter.getPressedKey();
+        switch (key) {
+            case KeyEvent.VK_N:
+                newPoint();
+                break;
+            case KeyEvent.VK_R:
+                restart();
+                break;
+            case KeyEvent.VK_CANCEL:
+                cancel();
+                break;
+            case KeyEvent.VK_SPACE:
+                pause();
+                break;
+            case KeyEvent.VK_1:
+                easy();
+                break;
+            case KeyEvent.VK_2:
+                middle();
+                break;
+            case KeyEvent.VK_3:
+                hard();
+                break;
+        }
 
     }
-
-//    private class MyKeyAdapter extends KeyAdapter {
-//        @Override
-//        public void keyPressed(KeyEvent e) {
-//            int key = e.getKeyCode();
-//            switch (key) {
-//                case KeyEvent.VK_DOWN:
-//                case KeyEvent.VK_S:
-//                    posunDole(key);
-//                    break;
-//                case KeyEvent.VK_UP:
-//                case KeyEvent.VK_W:
-//                    posunHore(key);
-//                    break;
-//                case KeyEvent.VK_LEFT:
-//                case KeyEvent.VK_A:
-//                    posunVlavo(key);
-//                    break;
-//                case KeyEvent.VK_RIGHT:
-//                case KeyEvent.VK_D:
-//                    posunVpravo(key);
-//                    break;
-//                case KeyEvent.VK_ENTER:
-//                    break;
-//                case KeyEvent.VK_ESCAPE:
-//                    zrus();
-//                    break;
-//                case KeyEvent.VK_Q:
-//                    novy();
-//                    break;
-//                case KeyEvent.VK_R:
-//                    restart();
-//                    break;
-//                case KeyEvent.VK_1:
-//                    lahka();
-//                    break;
-//                case KeyEvent.VK_2:
-//                    stredna();
-//                    break;
-//                case KeyEvent.VK_3:
-//                    tazka();
-//                    break;
-//                case KeyEvent.VK_SPACE:
-//                    pauza();
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
-//    }
-
 
 }

@@ -1,3 +1,5 @@
+package movingModels;
+
 public interface IMovingObject {
 
 //    void up(int key);
@@ -5,7 +7,6 @@ public interface IMovingObject {
 //    void left(int key);
 //    void right(int key);
 
-    void changeDirection(int key);
     void move();
 
 }

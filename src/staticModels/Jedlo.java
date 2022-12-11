@@ -1,9 +1,15 @@
+package staticModels;
+
+import movingModels.Hadik;
+import utility.Config;
+import utility.Position;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 
 /**
- * Trieda Jedlo vytvori a zobrazi na platne jedlo na nahodnej polohe. Teda objekt ktory sa hadik snazi "zjest".
+ * Trieda staticModels.Jedlo vytvori a zobrazi na platne jedlo na nahodnej polohe. Teda objekt ktory sa hadik snazi "zjest".
  *
  * @author (Adam Beliansky)
  * @version (a version number or a date)

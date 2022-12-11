@@ -1,3 +1,5 @@
+package other;
+
 import java.io.FileWriter;
 import java.io.File;
 import java.io.BufferedWriter;

@@ -1,18 +1,22 @@
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+package movingModels;
+
+import staticModels.Jedlo;
+import utility.Config;
+import utility.Position;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
 /**
- * Trieda Hadik vytvori hadika prefarbením štvorca na červeno. Hadik sa môže pohybovať dolava, doprava, hore, dole.
+ * Trieda moving.Hadik vytvori hadika prefarbením štvorca na červeno. moving.Hadik sa môže pohybovať dolava, doprava, hore, dole.
  * Tak isto sa môže zväčšovať, alebo pri reštartovaní hry vytvoriť na novo.
  *
  * @author (Adam Beliansky)
  * @version (a version number or a date)
  * #C432B3
  */
-public class Hadik extends MovingObject implements IObserver {
+public class Hadik extends MovingObject {
 
     private final Image[] head = new Image[4];
     private Image body;
@@ -85,46 +89,6 @@ public class Hadik extends MovingObject implements IObserver {
         this.telo.add(new Position(telo.get(telo.size() - 1).x, telo.get(telo.size() - 1).y));
     }
 
-    /**
-     * Nastavi smer.
-     */
-//    public void setSmer(Smer smer, int event) {
-//        for (int k : keys) {
-//            if (k == event) {
-//                this.smer = smer;
-//                break;
-//            }
-//        }
-//    }
-
-//    /**
-//     * Posunie hadika o 1 policko vlavo
-//     */
-//    private void vlavo() {
-//        telo.get(0).x -= Config.rozmerBodu;
-//    }
-//
-//    /**
-//     * Posunie hadika o 1 policko vpravo
-//     */
-//    private void vpravo() {
-//        telo.get(0).x += Config.rozmerBodu;
-//    }
-//
-//    /**
-//     * Posunie hadika o 1 policko hore
-//     */
-//    private void hore() {
-//        telo.get(0).y -= Config.rozmerBodu;
-//    }
-//
-//    /**
-//     * Posunie hadika o 1 policko dole
-//     */
-//    private void dole() {
-//        telo.get(0).y += Config.rozmerBodu;
-//    }
-
     public void move() {
         for (int z = telo.size() - 1; z > 0; z--) {
             telo.get(z).x = telo.get(z - 1).x;
@@ -157,7 +121,7 @@ public class Hadik extends MovingObject implements IObserver {
         return this.telo.size();
     }
 
-//    public Smer smer() {
+//    public position.Smer smer() {
 //        return smer;
 //    }
 
@@ -167,14 +131,5 @@ public class Hadik extends MovingObject implements IObserver {
     public void novyHadik() {
         this.telo.clear();
         init();
-    }
-
-    @Override
-    public void update(Observable observable) {
-        MyKeyAdapter myKeyAdapter = (MyKeyAdapter) observable;
-        int key = myKeyAdapter.getPressedKey();
-        switch (key) {
-        }
-
     }
 }

@@ -1,8 +1,10 @@
+package observer;
+
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 
-public class MyKeyAdapter extends KeyAdapter implements Observable {
+public class ObservableKeyAdapter extends KeyAdapter implements Observable {
     private final LinkedList<IObserver> observers = new LinkedList<>();
     private int pressedKey;
 

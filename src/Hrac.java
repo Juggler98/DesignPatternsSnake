@@ -1,3 +1,6 @@
+import other.Obtiaznost;
+import other.Statistika;
+
 /**
  * Tato trieda pocita hracovi aktualne skore, takisto overuje nove najvyssie skore. Pripadne zmeny posiela do triedy Statistika.
  * 
