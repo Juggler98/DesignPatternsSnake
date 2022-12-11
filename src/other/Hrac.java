@@ -1,3 +1,5 @@
+package other;
+
 import other.Obtiaznost;
 import other.Statistika;
 

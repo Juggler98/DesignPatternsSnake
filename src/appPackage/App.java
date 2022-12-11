@@ -1,9 +1,18 @@
+package appPackage;
+
+import command.Command;
+import command.ICommand;
+import command.PauseCommand;
+import flyweight.MyImage;
 import movingModels.Hadik;
 import movingModels.IMovingObject;
 import observer.IObserver;
 import observer.ObservableKeyAdapter;
 import observer.Observable;
+import other.Hrac;
 import other.Obtiaznost;
+import staticModels.Apple;
+import staticModels.Food;
 import staticModels.Jedlo;
 import utility.Config;
 
@@ -13,29 +22,53 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Random;
 
 /**
  * Tato metoda riadi najdolezitejsie procesy ako pohyb hada, kontroly kolizie, vstup a vystup udajov, nastavenie naročnosti...
- * Tak isto vytvari vacsinu instancii tried ako sú moving.Hadik, staticModels.Jedlo, Hrac, HraciePole.
+ * Tak isto vytvari vacsinu instancii tried ako sú moving.Hadik, staticModels.Jedlo, other.Hrac, HraciePole.
  *
  * @author (Adam Beliansky)
  * @version (a version number or a date)
  */
-public class Hra extends JPanel implements ActionListener, IObserver {
-    private ArrayList<IMovingObject> snakes = new ArrayList<>();
-    private Jedlo jedlo;
+public class App extends JPanel implements ActionListener, IObserver {
+    private final LinkedList<IMovingObject> movingObjects = new LinkedList<>();
+    private Food apple;
     private Hrac hrac;
     private Obtiaznost obtiaznost = Obtiaznost.STREDNA;
     private boolean pauza;
-
     private final Timer timer;
+    private static App instance;
+    private static final LinkedList<MyImage> images = new LinkedList<>();
+    public final PauseCommand pauseCommand = new PauseCommand(this);
 
-    public Hra() {
-//        Manazer manazer = new Manazer();
-//
-//        addKeyListener(manazer);
+    public static App getInstance() {
+        if (instance == null) {
+            instance = new App();
+        }
+        return instance;
+    }
 
+    private App() {
+        timer = new Timer(Config.middleDelay, this);
+        timer.start();
+
+        init();
+    }
+
+    public static MyImage getOrAddImage(String resource) {
+        for (MyImage m : images) {
+            if (m.resource.equals(resource)) {
+                return m;
+            }
+        }
+        MyImage myImage = new MyImage(resource);
+        images.add(myImage);
+        return myImage;
+    }
+
+    private void init() {
         ObservableKeyAdapter observableKeyAdapter = new ObservableKeyAdapter();
         addKeyListener(observableKeyAdapter);
 
@@ -64,21 +97,18 @@ public class Hra extends JPanel implements ActionListener, IObserver {
 //        }
         this.pauza = false;
         this.hrac = new Hrac("a", this.obtiaznost);
-        int[] keys = {KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT};
-        int[] keys2 = {KeyEvent.VK_W,  KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D};
 
-        snakes.add(new Hadik(keys));
-        snakes.add(new Hadik(keys2));
+        movingObjects.add(new Hadik(new int[]{KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT}));
+        movingObjects.add(new Hadik(new int[]{KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D}));
+        movingObjects.add(new Hadik(new int[]{KeyEvent.VK_NUMPAD8, KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD4, KeyEvent.VK_NUMPAD6}));
 
 
-        observableKeyAdapter.attach((IObserver) snakes.get(0));
-        observableKeyAdapter.attach((IObserver) snakes.get(1));
+        for (IMovingObject s : movingObjects) {
+            observableKeyAdapter.attach((IObserver) s);
+        }
         observableKeyAdapter.attach(this);
-//        manazer.spravujObjekt(snakes.get(0));
-//        manazer.spravujObjekt(snakes.get(1));
-//        manazer.spravujObjekt(this);
 
-        this.jedlo = new Jedlo("src/resources/apple.png");
+        this.apple = new Apple("src/resources/apple.png");
 
         setBackground(Color.black);
         setPreferredSize(new Dimension(Config.rozmerPlatna, Config.rozmerPlatna));
@@ -86,18 +116,9 @@ public class Hra extends JPanel implements ActionListener, IObserver {
 
         //JOptionPane.showMessageDialog(null, "Stlacenim lubovolnej sipky zacnes hru.\nUkoncis ju stlacenim Esc.\nPre pauzu stlac medzernik.");
 
-        timer = new Timer(Config.middleDelay, this);
-        timer.start();
+
         this.nastavObtiaznost();
     }
-
-
-    private void initGame() {
-
-    }
-
-    Random random = new Random();
-
 
     @Override
     public void paintComponent(Graphics g) {
@@ -105,11 +126,13 @@ public class Hra extends JPanel implements ActionListener, IObserver {
         doDrawing(g);
     }
 
-
     private void doDrawing(Graphics g) {
         if (true) {
-            g.drawImage(jedlo.getImage(), jedlo.getPosition().x, jedlo.getPosition().y, this);
-            for (IMovingObject hadik : snakes) {
+
+            g.drawImage(apple.getMyImage().image, apple.getPosition().x, apple.getPosition().y, this);
+
+            for (IMovingObject hadik : movingObjects) {
+
                 Hadik h = (Hadik) hadik;
                 for (int z = 0; z < h.telo.size(); z++) {
                     if (z == 0) {
@@ -118,7 +141,10 @@ public class Hra extends JPanel implements ActionListener, IObserver {
                         g.drawImage(h.getBody(), h.telo.get(z).x, h.telo.get(z).y, this);
                     }
                 }
+
             }
+
+
             Toolkit.getDefaultToolkit().sync();
         } else {
 
@@ -129,7 +155,7 @@ public class Hra extends JPanel implements ActionListener, IObserver {
      * Toto je mensi cheat. Pri stlaceni klavesy Q sa prida hadikovy dalsi clanok, ale skore sa nazvacsi. Sluzi len na testovanie funkcnosti predlzovania.
      */
     private void newPoint() {
-        for (IMovingObject h : snakes) {
+        for (IMovingObject h : movingObjects) {
             Hadik hadik = (Hadik) h;
             hadik.pridajClanok();
         }
@@ -141,13 +167,12 @@ public class Hra extends JPanel implements ActionListener, IObserver {
      */
     private void tik() {
         checkApple();
-        for (IMovingObject hadik : snakes) {
-            hadik.move();
+        for (IMovingObject movingObject : movingObjects) {
+            movingObject.move();
         }
         repaint();
 
         if (!this.pauza) {
-
             // this.hadik.pridajClanok();
             this.hrac.setSkore(1);
             if (this.skontrolujKoliziu()) {
@@ -180,9 +205,13 @@ public class Hra extends JPanel implements ActionListener, IObserver {
     /**
      * Pozastavi/spusti pohyb hadika.
      */
-    private boolean pause() {
-        this.pauza = !this.pauza;
-        return this.pauza;
+    public void pause() {
+        pauza = !pauza;
+        if (pauza) {
+            timer.stop();
+        } else {
+            timer.start();
+        }
     }
 
     /**
@@ -243,8 +272,8 @@ public class Hra extends JPanel implements ActionListener, IObserver {
         JOptionPane.showMessageDialog(null, hrac.getMeno() + " prehral si. Tvoje skore: " + this.hrac.getSkore(), "Skore", JOptionPane.PLAIN_MESSAGE);
         JOptionPane.showMessageDialog(null, this.hrac.getStatistika().getSkore().vypis(), "Leaderboard" + " " + this.obtiaznost.toString().toLowerCase(), JOptionPane.PLAIN_MESSAGE);
         //this.hadik.novyHadik();
-        this.jedlo.skryJedlo();
-        this.jedlo.zmenPoziciu();
+//        this.apple.skryJedlo();
+//        this.apple.zmenPoziciu();
         this.hrac.setSkore(-this.hrac.getSkore());
     }
 
@@ -254,11 +283,11 @@ public class Hra extends JPanel implements ActionListener, IObserver {
     }
 
     private void checkApple() {
-        for (IMovingObject hadik : snakes) {
+        for (IMovingObject hadik : movingObjects) {
             Hadik h = (Hadik) hadik;
-            if ((h.telo.get(0).equals(jedlo.getPosition()))) {
+            if ((h.telo.get(0).equals(apple.getPosition()))) {
                 h.pridajClanok();
-                jedlo.zmenPoziciu();
+                apple.move();
             }
         }
     }
@@ -278,7 +307,12 @@ public class Hra extends JPanel implements ActionListener, IObserver {
                 cancel();
                 break;
             case KeyEvent.VK_SPACE:
-                pause();
+                pauseCommand.execute();
+//                for (ICommand command : commands) {
+//                    if (command instanceof PauseCommand) {
+//                        command.execute();
+//                    }
+//                }
                 break;
             case KeyEvent.VK_1:
                 easy();

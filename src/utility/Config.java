@@ -6,6 +6,10 @@ public class Config {
     public static final int middleDelay = 120;
     public static final int hardDelay = 40;
     public static final int rozmerBodu = 16;
-    public static final int rozmerPlatna = 600;
+    public static final int rozmerPlatna = 624;
+
+    public static final int pocetPixelov = rozmerPlatna / rozmerBodu;
+
+
 
 }

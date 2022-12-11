@@ -1,5 +1,8 @@
 package movingModels;
 
+import appPackage.App;
+import command.PauseCommand;
+import flyweight.MyImage;
 import staticModels.Jedlo;
 import utility.Config;
 import utility.Position;
@@ -7,6 +10,7 @@ import utility.Position;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Trieda moving.Hadik vytvori hadika prefarbením štvorca na červeno. moving.Hadik sa môže pohybovať dolava, doprava, hore, dole.
@@ -18,10 +22,11 @@ import java.util.ArrayList;
  */
 public class Hadik extends MovingObject {
 
-    private final Image[] head = new Image[4];
-    private Image body;
+    private final MyImage[] head = new MyImage[4];
+    private MyImage body;
     public final ArrayList<Position> telo = new ArrayList<>();
     private int initialLength = 2;
+    private static final Random random = new Random();
 
 
     /**
@@ -41,42 +46,37 @@ public class Hadik extends MovingObject {
     }
 
     private void init() {
+        body = App.getOrAddImage("src/resources/square.png");
 
-        ImageIcon leftRight = new ImageIcon("src/resources/square.png");
-        body = leftRight.getImage();
+        head[0] = App.getOrAddImage("src/resources/snake_up.png");
+        head[1] = App.getOrAddImage("src/resources/snake_down.png");
+        head[2] = App.getOrAddImage("src/resources/snake_left.png");
+        head[3] = App.getOrAddImage("src/resources/snake_right.png");
 
-        ImageIcon up = new ImageIcon("src/resources/snake_up.png");
-        ImageIcon down = new ImageIcon("src/resources/snake_down.png");
-        ImageIcon left = new ImageIcon("src/resources/snake_left.png");
-        ImageIcon right = new ImageIcon("src/resources/snake_right.png");
-        head[0] = up.getImage();
-        head[1] = down.getImage();
-        head[2] = left.getImage();
-        head[3] = right.getImage();
-
+        int y = random.nextInt(Config.pocetPixelov) * Config.rozmerBodu;
         for (int i = initialLength; i >= 0; i--) {
-            telo.add(new Position(Config.rozmerBodu * 4 + i * Config.rozmerBodu, Config.rozmerBodu * 4));
+            telo.add(new Position(Config.rozmerBodu * 4 + i * Config.rozmerBodu, y));
         }
     }
 
     public Image getBody() {
-        return body;
+        return body.image;
     }
 
     public Image getHead() {
         Image image = null;
         switch (smer) {
             case HORE:
-                image = head[0];
+                image = head[0].image;
                 break;
             case DOLE:
-                image = head[1];
+                image = head[1].image;
                 break;
             case VLAVO:
-                image = head[2];
+                image = head[2].image;
                 break;
             case VPRAVO:
-                image = head[3];
+                image = head[3].image;
                 break;
         }
         return image;
@@ -87,6 +87,8 @@ public class Hadik extends MovingObject {
      */
     public void pridajClanok() {
         this.telo.add(new Position(telo.get(telo.size() - 1).x, telo.get(telo.size() - 1).y));
+        App.getInstance().pauseCommand.execute();
+//        App.getInstance().pause();
     }
 
     public void move() {

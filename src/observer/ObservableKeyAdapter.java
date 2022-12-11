@@ -26,6 +26,14 @@ public class ObservableKeyAdapter extends KeyAdapter implements Observable {
             case KeyEvent.VK_1:
             case KeyEvent.VK_2:
             case KeyEvent.VK_3:
+            case KeyEvent.VK_4:
+            case KeyEvent.VK_5:
+            case KeyEvent.VK_6:
+            case KeyEvent.VK_8:
+            case KeyEvent.VK_NUMPAD4:
+            case KeyEvent.VK_NUMPAD5:
+            case KeyEvent.VK_NUMPAD6:
+            case KeyEvent.VK_NUMPAD8:
             case KeyEvent.VK_SPACE:
                 pressedKey = key;
                 notifyObservers();

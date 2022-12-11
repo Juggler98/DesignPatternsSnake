@@ -1,3 +1,5 @@
+package appPackage;
+
 import javax.swing.*;
 
 /**
@@ -8,7 +10,7 @@ import javax.swing.*;
  */
 public class Main {
     /**
-     * Constructor for objects of class Main
+     * Constructor for objects of class appPackage.Main
      */
     public Main() {
         // initialise instance variables
@@ -21,7 +23,7 @@ public class Main {
         JFrame jFrame;
         jFrame = new JFrame();
 
-        jFrame.add(new Hra());
+        jFrame.add(App.getInstance());
 
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setVisible(true);
