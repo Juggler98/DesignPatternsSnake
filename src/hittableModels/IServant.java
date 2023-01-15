@@ -1,4 +1,4 @@
-package hitableModels;
+package hittableModels;
 
 import controllable.ControllableObject;
 

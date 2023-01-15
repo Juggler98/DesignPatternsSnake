@@ -8,8 +8,8 @@ import observer.IObserver;
 import observer.ObservableKeyAdapter;
 import observer.Observable;
 import utility.Obtiaznost;
-import hitableModels.IServant;
-import hitableModels.*;
+import hittableModels.IServant;
+import hittableModels.*;
 import utility.Config;
 import utility.Position;
 import utility.PositionImage;
@@ -34,7 +34,7 @@ import java.util.LinkedList;
  */
 public class App extends JPanel implements ActionListener, IObserver {
     private final LinkedList<ControllableObject> controllableObjects = new LinkedList<>();
-    private final LinkedList<IServant> hitableObjects = new LinkedList<>();
+    private final LinkedList<Hittable> hittableObjects = new LinkedList<>();
     private Obtiaznost obtiaznost = Obtiaznost.STREDNA;
     private boolean pauza;
     private final Timer timer;
@@ -106,14 +106,12 @@ public class App extends JPanel implements ActionListener, IObserver {
             observableKeyAdapter.attach((IObserver) s);
         }
 
-        hitableObjects.add(Factory.createApple());
-        hitableObjects.add(Factory.createSpider());
-
-        hitableObjects.add(new Banana("assets/banana.png"));
+        hittableObjects.add(HittableFactory.createApple());
+        hittableObjects.add(HittableFactory.createSpider());
 
         Position[] positions = {new Position(5, 5), new Position(6, 5), new Position(7, 5), new Position(5, 6), new Position(6, 6), new Position(7, 6)};
-        Obstacle obstacle = Factory.createObstacle(positions);
-        hitableObjects.add(obstacle);
+        Obstacle obstacle = HittableFactory.createObstacle(positions);
+        hittableObjects.add(obstacle);
     }
 
     @Override
@@ -123,16 +121,9 @@ public class App extends JPanel implements ActionListener, IObserver {
     }
 
     private void doDrawing(Graphics g) {
-        for (IServant s : hitableObjects) {
-            if (s instanceof Food) {
-                Food food = (Food) s;
-                g.drawImage(food.getMyImage().image, food.getPosition().x, food.getPosition().y, this);
-            }
-            if (s instanceof Obstacle) {
-                Obstacle obstacle = (Obstacle) s;
-                for (PositionImage positionImage : obstacle.getBody()) {
-                    g.drawImage(positionImage.getImage().image, positionImage.position.x, positionImage.position.y, this);
-                }
+        for (Hittable s : hittableObjects) {
+            for (PositionImage positionImage : s.getBody()) {
+                g.drawImage(positionImage.getImage().image, positionImage.position.x, positionImage.position.y, this);
             }
         }
         int x = 16;
@@ -275,7 +266,7 @@ public class App extends JPanel implements ActionListener, IObserver {
      */
     public void restart() {
         controllableObjects.clear();
-        hitableObjects.clear();
+        hittableObjects.clear();
         init2();
     }
 
@@ -287,7 +278,7 @@ public class App extends JPanel implements ActionListener, IObserver {
     private void checkFood() {
         for (int i = 0; i < controllableObjects.size(); i++) {
             ControllableObject m = controllableObjects.get(i);
-            for (IServant s : hitableObjects) {
+            for (IServant s : hittableObjects) {
                 s.action(m);
             }
         }
