@@ -48,20 +48,20 @@ public class App extends JPanel implements ActionListener, IObserver {
     }
 
     private App() {
-//        JOptionPane.showMessageDialog(null, "Nahraj 100 bodov. Ovladanie sipkami.\nPre pauzu stlac medzernik.");
-//
-//        String[] moznosti = {"Lahka", "Stredna", "Tazka"};
-//        int odpoved = JOptionPane.showOptionDialog(null, "Zvol si obtiaznost:", "Obtiaznost", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, moznosti, null);
-//        switch (odpoved) {
-//            case 0:
-//                this.obtiaznost = Obtiaznost.LAHKA;
-//                break;
-//            case 2:
-//                this.obtiaznost = Obtiaznost.TAZKA;
-//                break;
-//            default:
-//                this.obtiaznost = Obtiaznost.STREDNA;
-//        }
+        JOptionPane.showMessageDialog(null, "Nahraj 100 bodov. Ovladanie sipkami.\nPre pauzu stlac medzernik.");
+
+        String[] moznosti = {"Lahka", "Stredna", "Tazka"};
+        int odpoved = JOptionPane.showOptionDialog(null, "Zvol si obtiaznost:", "Obtiaznost", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, moznosti, null);
+        switch (odpoved) {
+            case 0:
+                this.obtiaznost = Obtiaznost.LAHKA;
+                break;
+            case 2:
+                this.obtiaznost = Obtiaznost.TAZKA;
+                break;
+            default:
+                this.obtiaznost = Obtiaznost.STREDNA;
+        }
 
         timer = new Timer(Config.middleDelay, this);
         timer.start();
