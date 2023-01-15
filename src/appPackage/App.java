@@ -202,7 +202,7 @@ public class App extends JPanel implements ActionListener, IObserver {
     /**
      * Skontroluje koliziu.
      */
-    private boolean skontrolujKoliziu() {
+    private void skontrolujKoliziu() {
         boolean end;
         for (int i = 0; i < controllableObjects.size(); i++) {
             ControllableObject h = controllableObjects.get(i);
@@ -235,7 +235,6 @@ public class App extends JPanel implements ActionListener, IObserver {
                 }
             }
         }
-        return false;
     }
 
     private void checkIfEnd() {
