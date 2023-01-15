@@ -2,14 +2,14 @@ package command;
 
 import appPackage.App;
 
-public class PauseCommand extends AppCommand {
+public class NewPointCommand extends AppCommand {
 
-    public PauseCommand(App app) {
+    public NewPointCommand(App app) {
         super(app);
     }
+
     @Override
     public void execute() {
-        app.pause();
+        app.newPoint();
     }
-
 }

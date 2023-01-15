@@ -1,7 +1,7 @@
-package staticModels;
+package hitableModels;
 
-import appPackage.App;
 import flyweight.MyImage;
+import flyweight.MyImageFactory;
 import movingModels.IMovingObject;
 import utility.Config;
 import utility.Position;
@@ -14,24 +14,24 @@ import java.util.Random;
  * @author (Adam Beliansky)
  * @version (a version number or a date)
  */
-public abstract class Food implements IMovingObject {
+public abstract class Food implements IMovingObject, IServant {
 
-    private final Position position = new Position(0, 0);
-    private MyImage myImage;
     private final static Random random = new Random();
 
+    protected final Position position = new Position(0, 0);
+    private final MyImage myImage;
 
     public Food(String resource) {
-        myImage = App.getOrAddImage(resource);
+        myImage = MyImageFactory.getOrAddImage(resource);
         move();
-    }
-
-    public MyImage getMyImage() {
-        return myImage;
     }
 
     public Position getPosition() {
         return position;
+    }
+
+    public MyImage getMyImage() {
+        return myImage;
     }
 
     @Override
@@ -39,4 +39,6 @@ public abstract class Food implements IMovingObject {
         position.x = random.nextInt(Config.pocetPixelov) * Config.rozmerBodu;
         position.y = random.nextInt(Config.pocetPixelov) * Config.rozmerBodu;
     }
+
+
 }

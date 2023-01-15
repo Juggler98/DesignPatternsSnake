@@ -21,6 +21,7 @@ public class ObservableKeyAdapter extends KeyAdapter implements Observable {
             case KeyEvent.VK_D:
             case KeyEvent.VK_ENTER:
             case KeyEvent.VK_ESCAPE:
+            case KeyEvent.VK_CANCEL:
             case KeyEvent.VK_N:
             case KeyEvent.VK_R:
             case KeyEvent.VK_1:
@@ -37,6 +38,7 @@ public class ObservableKeyAdapter extends KeyAdapter implements Observable {
             case KeyEvent.VK_SPACE:
                 pressedKey = key;
                 notifyObservers();
+            default:
         }
     }
 
@@ -47,7 +49,7 @@ public class ObservableKeyAdapter extends KeyAdapter implements Observable {
 
     @Override
     public void detach(IObserver observer) {
-        observers.remove(observer);
+        boolean o =  observers.remove(observer);
     }
 
     @Override

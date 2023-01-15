@@ -1,4 +1,4 @@
-package other;
+package utility;
 
 /**
  * other.Hrac moze hrat v 3 obtiaznostiach. Lahka, stredna a tazka. Tu su vymenovane.

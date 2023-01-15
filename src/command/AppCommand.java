@@ -2,9 +2,9 @@ package command;
 
 import appPackage.App;
 
-public abstract class Command implements ICommand {
+public abstract class AppCommand implements ICommand {
     protected final App app;
-    public Command(App app) {
+    public AppCommand(App app) {
         this.app = app;
     }
 }

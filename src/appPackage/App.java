@@ -1,29 +1,25 @@
 package appPackage;
 
-import command.Command;
-import command.ICommand;
-import command.PauseCommand;
-import flyweight.MyImage;
-import movingModels.Hadik;
+import command.*;
+import controllable.ControllableObject;
+import controllable.Hadik;
 import movingModels.IMovingObject;
 import observer.IObserver;
 import observer.ObservableKeyAdapter;
 import observer.Observable;
-import other.Hrac;
-import other.Obtiaznost;
-import staticModels.Apple;
-import staticModels.Food;
-import staticModels.Jedlo;
+import utility.Obtiaznost;
+import hitableModels.IServant;
+import hitableModels.*;
 import utility.Config;
+import utility.Position;
+import utility.PositionImage;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Random;
 
 /**
  * Tato metoda riadi najdolezitejsie procesy ako pohyb hada, kontroly kolizie, vstup a vystup udajov, nastavenie naročnosti...
@@ -31,17 +27,18 @@ import java.util.Random;
  *
  * @author (Adam Beliansky)
  * @version (a version number or a date)
+ * <p>
+ * <p>
+ * smer state?
+ * position ?
  */
 public class App extends JPanel implements ActionListener, IObserver {
-    private final LinkedList<IMovingObject> movingObjects = new LinkedList<>();
-    private Food apple;
-    private Hrac hrac;
+    private final LinkedList<ControllableObject> controllableObjects = new LinkedList<>();
+    private final LinkedList<IServant> hitableObjects = new LinkedList<>();
     private Obtiaznost obtiaznost = Obtiaznost.STREDNA;
     private boolean pauza;
     private final Timer timer;
     private static App instance;
-    private static final LinkedList<MyImage> images = new LinkedList<>();
-    public final PauseCommand pauseCommand = new PauseCommand(this);
 
     public static App getInstance() {
         if (instance == null) {
@@ -51,43 +48,13 @@ public class App extends JPanel implements ActionListener, IObserver {
     }
 
     private App() {
-        timer = new Timer(Config.middleDelay, this);
-        timer.start();
-
-        init();
-    }
-
-    public static MyImage getOrAddImage(String resource) {
-        for (MyImage m : images) {
-            if (m.resource.equals(resource)) {
-                return m;
-            }
-        }
-        MyImage myImage = new MyImage(resource);
-        images.add(myImage);
-        return myImage;
-    }
-
-    private void init() {
-        ObservableKeyAdapter observableKeyAdapter = new ObservableKeyAdapter();
-        addKeyListener(observableKeyAdapter);
-
-//        try {
-//            this.meno = JOptionPane.showInputDialog(null, "Tvoje meno:", "Meno", JOptionPane.QUESTION_MESSAGE).toLowerCase();
-//            if (this.meno.equals("")) {
-//                this.meno = "anonym";
-//            }
-//        } catch (NullPointerException e) {
-//            this.meno = "anonym";
-//        }
+//        JOptionPane.showMessageDialog(null, "Nahraj 100 bodov. Ovladanie sipkami.\nPre pauzu stlac medzernik.");
+//
 //        String[] moznosti = {"Lahka", "Stredna", "Tazka"};
 //        int odpoved = JOptionPane.showOptionDialog(null, "Zvol si obtiaznost:", "Obtiaznost", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, moznosti, null);
 //        switch (odpoved) {
 //            case 0:
 //                this.obtiaznost = Obtiaznost.LAHKA;
-//                break;
-//            case 1:
-//                this.obtiaznost = Obtiaznost.STREDNA;
 //                break;
 //            case 2:
 //                this.obtiaznost = Obtiaznost.TAZKA;
@@ -95,29 +62,58 @@ public class App extends JPanel implements ActionListener, IObserver {
 //            default:
 //                this.obtiaznost = Obtiaznost.STREDNA;
 //        }
+
+        timer = new Timer(Config.middleDelay, this);
+        timer.start();
+
+        init();
+    }
+
+    private ObservableKeyAdapter observableKeyAdapter;
+
+    private void init() {
+        init2();
         this.pauza = false;
-        this.hrac = new Hrac("a", this.obtiaznost);
-
-        movingObjects.add(new Hadik(new int[]{KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT}));
-        movingObjects.add(new Hadik(new int[]{KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D}));
-        movingObjects.add(new Hadik(new int[]{KeyEvent.VK_NUMPAD8, KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD4, KeyEvent.VK_NUMPAD6}));
-
-
-        for (IMovingObject s : movingObjects) {
-            observableKeyAdapter.attach((IObserver) s);
-        }
-        observableKeyAdapter.attach(this);
-
-        this.apple = new Apple("src/resources/apple.png");
 
         setBackground(Color.black);
         setPreferredSize(new Dimension(Config.rozmerPlatna, Config.rozmerPlatna));
         setFocusable(true);
 
-        //JOptionPane.showMessageDialog(null, "Stlacenim lubovolnej sipky zacnes hru.\nUkoncis ju stlacenim Esc.\nPre pauzu stlac medzernik.");
+        nastavObtiaznost(obtiaznost);
 
+        Commands.addCommand(KeyEvent.VK_N, new NewPointCommand(this));
+        Commands.addCommand(KeyEvent.VK_R, new RestartCommand(this));
+        Commands.addCommand(KeyEvent.VK_SPACE, new PauseCommand(this));
+        Commands.addCommand(KeyEvent.VK_ESCAPE, new CancelCommand(this));
+        Commands.addCommand(KeyEvent.VK_1, new SetSpeedCommand(this, Obtiaznost.LAHKA));
+        Commands.addCommand(KeyEvent.VK_2, new SetSpeedCommand(this, Obtiaznost.STREDNA));
+        Commands.addCommand(KeyEvent.VK_3, new SetSpeedCommand(this, Obtiaznost.TAZKA));
+    }
 
-        this.nastavObtiaznost();
+    private void init2() {
+        removeKeyListener(observableKeyAdapter);
+
+        observableKeyAdapter = new ObservableKeyAdapter();
+        addKeyListener(observableKeyAdapter);
+
+        observableKeyAdapter.attach(this);
+
+        controllableObjects.add(new Hadik(new int[]{KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT}));
+        controllableObjects.add(new Hadik(new int[]{KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D}));
+        controllableObjects.add(new Hadik(new int[]{KeyEvent.VK_NUMPAD8, KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD4, KeyEvent.VK_NUMPAD6}));
+
+        for (IMovingObject s : controllableObjects) {
+            observableKeyAdapter.attach((IObserver) s);
+        }
+
+        hitableObjects.add(Factory.createApple());
+        hitableObjects.add(Factory.createSpider());
+
+        hitableObjects.add(new Banana("assets/banana.png"));
+
+        Position[] positions = {new Position(5, 5), new Position(6, 5), new Position(7, 5), new Position(5, 6), new Position(6, 6), new Position(7, 6)};
+        Obstacle obstacle = Factory.createObstacle(positions);
+        hitableObjects.add(obstacle);
     }
 
     @Override
@@ -127,79 +123,49 @@ public class App extends JPanel implements ActionListener, IObserver {
     }
 
     private void doDrawing(Graphics g) {
-        if (true) {
-
-            g.drawImage(apple.getMyImage().image, apple.getPosition().x, apple.getPosition().y, this);
-
-            for (IMovingObject hadik : movingObjects) {
-
-                Hadik h = (Hadik) hadik;
-                for (int z = 0; z < h.telo.size(); z++) {
-                    if (z == 0) {
-                        g.drawImage(h.getHead(), h.telo.get(z).x, h.telo.get(z).y, this);
-                    } else {
-                        g.drawImage(h.getBody(), h.telo.get(z).x, h.telo.get(z).y, this);
-                    }
-                }
-
+        for (IServant s : hitableObjects) {
+            if (s instanceof Food) {
+                Food food = (Food) s;
+                g.drawImage(food.getMyImage().image, food.getPosition().x, food.getPosition().y, this);
             }
-
-
-            Toolkit.getDefaultToolkit().sync();
-        } else {
-
+            if (s instanceof Obstacle) {
+                Obstacle obstacle = (Obstacle) s;
+                for (PositionImage positionImage : obstacle.getBody()) {
+                    g.drawImage(positionImage.getImage().image, positionImage.position.x, positionImage.position.y, this);
+                }
+            }
         }
+        int x = 16;
+        for (ControllableObject c : controllableObjects) {
+            for (PositionImage p : c.getState().getBody()) {
+                g.drawImage(p.getImage().image, p.position.x, p.position.y, this);
+            }
+            g.setColor(Color.WHITE);
+            g.drawString(c.getSize() + "", x, 16);
+            x += 16;
+        }
+        Toolkit.getDefaultToolkit().sync();
     }
 
     /**
      * Toto je mensi cheat. Pri stlaceni klavesy Q sa prida hadikovy dalsi clanok, ale skore sa nazvacsi. Sluzi len na testovanie funkcnosti predlzovania.
      */
-    private void newPoint() {
-        for (IMovingObject h : movingObjects) {
+    public void newPoint() {
+        for (ControllableObject h : controllableObjects) {
             Hadik hadik = (Hadik) h;
             hadik.pridajClanok();
         }
     }
 
-    /**
-     * Tato metoda sa opakuje podla dlzky tiku nastaveneho v Managerovi.
-     * Kontroluje koliziu, styk s jedlom a posuva hadika.
-     */
     private void tik() {
-        checkApple();
-        for (IMovingObject movingObject : movingObjects) {
-            movingObject.move();
+        checkFood();
+        for (ControllableObject c : controllableObjects) {
+            c.move();
         }
         repaint();
-
-        if (!this.pauza) {
-            // this.hadik.pridajClanok();
-            this.hrac.setSkore(1);
-            if (this.skontrolujKoliziu()) {
-                this.restart();
-            }
-        }
-    }
-
-    /**
-     * Dalsi cheat. Stlacenim klavesu 1 na anglickej klavesnici nad pismenami sa zmeni rychlost hadika. Sluzi len na testovanie
-     */
-    private void easy() {
-        timer.setDelay(Config.easyDelay);
-    }
-
-    /**
-     * Dalsi cheat. Stlacenim klavesu 2 na anglickej klavesnici nad pismenami sa zmeni rychlost hadika. Sluzi len na testovanie
-     */
-    private void middle() {
-        timer.setDelay(Config.middleDelay);
-    }
-
-    /**
-     * Dalsi cheat. Stlacenim klavesu 3 na anglickej klavesnici nad pismenami sa zmeni rychlost hadika. Sluzi len na testovanie
-     */
-    private void hard() {
-        timer.setDelay(Config.hardDelay);
+        this.skontrolujKoliziu();
+        checkIfEnd();
+        checkWin();
     }
 
     /**
@@ -217,23 +183,27 @@ public class App extends JPanel implements ActionListener, IObserver {
     /**
      * Vypne hru pri stlaceni Esc.
      */
-    private void cancel() {
+    public void cancel() {
         System.exit(0);
+    }
+
+    public void removeControllable(ControllableObject c) {
+        controllableObjects.remove(c);
     }
 
     /**
      * Nastavi rychlost pohybu hadika podla prislusnej obtiaznosti.
      */
-    private void nastavObtiaznost() {
-        switch (this.obtiaznost) {
+    public void nastavObtiaznost(Obtiaznost obtiaznost) {
+        switch (obtiaznost) {
             case LAHKA:
-                easy();
+                timer.setDelay(Config.easyDelay);
                 break;
             case STREDNA:
-                middle();
+                timer.setDelay(Config.middleDelay);
                 break;
             case TAZKA:
-                hard();
+                timer.setDelay(Config.hardDelay);
                 break;
         }
     }
@@ -242,39 +212,71 @@ public class App extends JPanel implements ActionListener, IObserver {
      * Skontroluje koliziu.
      */
     private boolean skontrolujKoliziu() {
-        //kontrola kolizie pre zjedenie sameho seba
-//        for (int i = 0; i < this.hadik.getVelkost() - 3; ++i) {
-//            if (this.hadik.getX(this.hadik.getVelkost() - 1) == this.hadik.getX(i) &&
-//                    this.hadik.getY(this.hadik.getVelkost() - 1) == this.hadik.getY(i)) {
-//                return true;
-//            }
-//        }
-//        //kontrola narazenia do okraja
-//        if (this.hadik.getPredokX() < 0 ||
-//                this.hadik.getPredokX() > (utility.Config.rozmerPlatna / utility.Config.rozmerBodu - 1) ||
-//                this.hadik.getPredokY() < 0 ||
-//                this.hadik.getPredokY() > (utility.Config.rozmerPlatna /  utility.Config.rozmerBodu) - 1) {
-//            return true;
-//        }
+        boolean end;
+        for (int i = 0; i < controllableObjects.size(); i++) {
+            ControllableObject h = controllableObjects.get(i);
+            end = false;
+            if (h.getHeadPosition().x < 0 || h.getHeadPosition().x > Config.rozmerPlatna || h.getHeadPosition().y < 0 || h.getHeadPosition().y > Config.rozmerPlatna) {
+                h.end();
+                continue;
+            }
+            for (int k = 0; k < controllableObjects.size(); k++) {
+                ControllableObject h2 = controllableObjects.get(k);
+                if (h != h2) {
+                    for (PositionImage p : h2.getState().getBody()) {
+                        Position position = p.position;
+                        if (h.getHeadPosition().equals(position)) {
+                            h.end();
+                            end = true;
+                            break;
+                        }
+                    }
+                } else {
+                    for (int j = 1; j < h2.getState().getBody().size(); j++) {
+                        if (h.getHeadPosition().equals(h.getState().getBody().get(j).position)) {
+                            h.end();
+                            break;
+                        }
+                    }
+                }
+                if (end) {
+                    break;
+                }
+            }
+        }
         return false;
+    }
+
+    private void checkIfEnd() {
+        if (controllableObjects.size() == 0) {
+            restart();
+        }
+    }
+
+    private boolean win = false;
+
+    private void checkWin() {
+        if (!win) {
+            for (ControllableObject c : controllableObjects) {
+                if (c.getSize() == 100) {
+                    JOptionPane.showMessageDialog(null, "You won!!!");
+                    win = true;
+                }
+            }
+        }
     }
 
     /**
      * Ak nastane kolizia, spusti sa metoda restart a hra sa restaruje.
      * <p>
      * Tak isto tu je mensi cheat.
-     * Stlacenim klavesy W sa tak isto spusti tato metoda.
+     * Stlacenim klavesy R sa tak isto spusti tato metoda.
      * Tato funkcionalita sluzi len na testovanie.
      */
     public void restart() {
-//        this.smer = position.Smer.STOJ;
-        this.hrac.zistiNajvyssie(this.obtiaznost);
-        JOptionPane.showMessageDialog(null, hrac.getMeno() + " prehral si. Tvoje skore: " + this.hrac.getSkore(), "Skore", JOptionPane.PLAIN_MESSAGE);
-        JOptionPane.showMessageDialog(null, this.hrac.getStatistika().getSkore().vypis(), "Leaderboard" + " " + this.obtiaznost.toString().toLowerCase(), JOptionPane.PLAIN_MESSAGE);
-        //this.hadik.novyHadik();
-//        this.apple.skryJedlo();
-//        this.apple.zmenPoziciu();
-        this.hrac.setSkore(-this.hrac.getSkore());
+        controllableObjects.clear();
+        hitableObjects.clear();
+        init2();
     }
 
     @Override
@@ -282,12 +284,11 @@ public class App extends JPanel implements ActionListener, IObserver {
         tik();
     }
 
-    private void checkApple() {
-        for (IMovingObject hadik : movingObjects) {
-            Hadik h = (Hadik) hadik;
-            if ((h.telo.get(0).equals(apple.getPosition()))) {
-                h.pridajClanok();
-                apple.move();
+    private void checkFood() {
+        for (int i = 0; i < controllableObjects.size(); i++) {
+            ControllableObject m = controllableObjects.get(i);
+            for (IServant s : hitableObjects) {
+                s.action(m);
             }
         }
     }
@@ -296,35 +297,7 @@ public class App extends JPanel implements ActionListener, IObserver {
     public void update(Observable observable) {
         ObservableKeyAdapter observableKeyAdapter = (ObservableKeyAdapter) observable;
         int key = observableKeyAdapter.getPressedKey();
-        switch (key) {
-            case KeyEvent.VK_N:
-                newPoint();
-                break;
-            case KeyEvent.VK_R:
-                restart();
-                break;
-            case KeyEvent.VK_CANCEL:
-                cancel();
-                break;
-            case KeyEvent.VK_SPACE:
-                pauseCommand.execute();
-//                for (ICommand command : commands) {
-//                    if (command instanceof PauseCommand) {
-//                        command.execute();
-//                    }
-//                }
-                break;
-            case KeyEvent.VK_1:
-                easy();
-                break;
-            case KeyEvent.VK_2:
-                middle();
-                break;
-            case KeyEvent.VK_3:
-                hard();
-                break;
-        }
-
+        Commands.execute(key);
     }
 
 }
