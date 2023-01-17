@@ -1,9 +1,6 @@
 package hittableModels;
 
 import controllable.ControllableObject;
-import utility.PositionImage;
-
-import java.util.LinkedList;
 
 public class Obstacle extends Hittable {
 

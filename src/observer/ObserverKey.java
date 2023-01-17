@@ -19,6 +19,9 @@ public class ObserverKey extends Observer {
 
     @Override
     public void update(IObservable observable) {
+        if (!(observable instanceof ObservableKeyAdapter)) {
+            return;
+        }
         ObservableKeyAdapter observableKeyAdapter = (ObservableKeyAdapter) observable;
         int key = observableKeyAdapter.getPressedKey();
         if (key == rightKey) {

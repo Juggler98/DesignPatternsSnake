@@ -9,11 +9,7 @@ import javax.swing.*;
  * @version (a version number or a date)
  */
 public class Main {
-    /**
-     * Constructor for objects of class appPackage.Main
-     */
     public Main() {
-        // initialise instance variables
     }
     
     /**

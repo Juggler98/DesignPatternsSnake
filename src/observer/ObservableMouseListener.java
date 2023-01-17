@@ -7,6 +7,17 @@ public class ObservableMouseListener extends Observable implements java.awt.even
     private int x;
     private int y;
 
+    private static ObservableMouseListener instance;
+    private ObservableMouseListener() {
+
+    }
+    public static ObservableMouseListener getInstance() {
+        if (instance == null) {
+            instance = new ObservableMouseListener();
+        }
+        return instance;
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
 

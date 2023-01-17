@@ -1,6 +1,6 @@
 package state;
 
-import utility.PositionImage;
+import flyweight.PositionImage;
 
 import java.util.List;
 

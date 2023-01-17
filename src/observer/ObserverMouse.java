@@ -11,6 +11,9 @@ public class ObserverMouse extends Observer {
 
     @Override
     public void update(IObservable observable) {
+        if (!(observable instanceof ObservableMouseListener)) {
+            return;
+        }
         ObservableMouseListener observableMouseListener = (ObservableMouseListener) observable;
         int x = observableMouseListener.getX();
         int y = observableMouseListener.getY();

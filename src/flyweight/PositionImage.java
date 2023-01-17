@@ -1,6 +1,6 @@
-package utility;
+package flyweight;
 
-import flyweight.MyImage;
+import utility.Position;
 
 public class PositionImage {
 

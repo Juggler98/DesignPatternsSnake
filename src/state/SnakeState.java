@@ -4,7 +4,7 @@ import flyweight.MyImage;
 import flyweight.MyImageFactory;
 import utility.Config;
 import utility.Position;
-import utility.PositionImage;
+import flyweight.PositionImage;
 
 import java.util.LinkedList;
 import java.util.List;

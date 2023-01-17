@@ -14,7 +14,7 @@ import hittableModels.IServant;
 import hittableModels.*;
 import utility.Config;
 import utility.Position;
-import utility.PositionImage;
+import flyweight.PositionImage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,7 +39,6 @@ import java.util.List;
 public class App extends JPanel implements ActionListener, IObserver {
     private final List<ControllableObject> controllableObjects = new ArrayList<>();
     private final List<Hittable> hittableObjects = new LinkedList<>();
-
     private final List<ObserverKey> controllers = new LinkedList<>();
     private Obtiaznost obtiaznost = Obtiaznost.STREDNA;
     private boolean pause;
@@ -77,7 +76,6 @@ public class App extends JPanel implements ActionListener, IObserver {
         init();
     }
 
-    private ObservableKeyAdapter observableKeyAdapter;
 
     private void init() {
         init2();
@@ -99,9 +97,9 @@ public class App extends JPanel implements ActionListener, IObserver {
     }
 
     private void init2() {
-        removeKeyListener(observableKeyAdapter);
+        ObservableKeyAdapter observableKeyAdapter = ObservableKeyAdapter.getInstance();
 
-        observableKeyAdapter = new ObservableKeyAdapter();
+        removeKeyListener(observableKeyAdapter);
         addKeyListener(observableKeyAdapter);
 
         observableKeyAdapter.attach(this);
@@ -118,11 +116,10 @@ public class App extends JPanel implements ActionListener, IObserver {
             observableKeyAdapter.attach(k);
         }
 
-        ObservableMouseListener observableMouseListener = new ObservableMouseListener();
+        ObservableMouseListener observableMouseListener = ObservableMouseListener.getInstance();
         addMouseListener(observableMouseListener);
 
         ObserverMouse observerMouse = new ObserverMouse(controllableObjects.get(0));
-
         observableMouseListener.attach(observerMouse);
 
 
@@ -174,7 +171,7 @@ public class App extends JPanel implements ActionListener, IObserver {
             c.move();
         }
         repaint();
-        this.skontrolujKoliziu();
+        this.checkCollision();
         checkIfEnd();
         checkWin();
     }
@@ -222,7 +219,7 @@ public class App extends JPanel implements ActionListener, IObserver {
     /**
      * Skontroluje koliziu.
      */
-    private void skontrolujKoliziu() {
+    private void checkCollision() {
         boolean end;
         for (int i = 0; i < controllableObjects.size(); i++) {
             ControllableObject h = controllableObjects.get(i);
