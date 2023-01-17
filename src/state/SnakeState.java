@@ -7,14 +7,15 @@ import utility.Position;
 import utility.PositionImage;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 public class SnakeState implements IState {
 
-    protected LinkedList<PositionImage> telo;
+    protected List<PositionImage> telo;
     private final static MyImage body = MyImageFactory.getOrAddImage("assets/square.png");
 
-    public SnakeState(LinkedList<PositionImage> telo) {
+    public SnakeState(List<PositionImage> telo) {
         if (telo == null) {
             telo = new LinkedList<>();
             Random random = new Random();
@@ -25,7 +26,7 @@ public class SnakeState implements IState {
     }
 
     public void pridajClanok() {
-        telo.add(new PositionImage(new Position(telo.get(telo.size() - 1).position.x, telo.get(telo.size() - 1).position.y), body));
+        telo.add(new PositionImage(new Position(telo.get(telo.size() - 1).position.getX(), telo.get(telo.size() - 1).position.getY()), body));
     }
 
     public void odoberClanok() {
@@ -55,12 +56,12 @@ public class SnakeState implements IState {
     @Override
     public void move() {
         for (int z = telo.size() - 1; z > 0; z--) {
-            telo.get(z).position.x = telo.get(z - 1).position.x;
-            telo.get(z).position.y = telo.get(z - 1).position.y;
+            telo.get(z).position.setX(telo.get(z - 1).position.getX());
+            telo.get(z).position.setY(telo.get(z - 1).position.getY());
         }
     }
 
-    public LinkedList<PositionImage> getBody() {
+    public List<PositionImage> getBody() {
         return telo;
     }
 }

@@ -12,19 +12,19 @@ import utility.Position;
  * @version (a version number or a date)
  * #C432B3
  */
-public class Hadik extends ControllableObject {
+public class Snake extends ControllableObject {
     private int initialLength = 2;
 
     /**
      * Vytvori hadika
      */
-    public Hadik(int[] keys) {
-        super(keys[0], keys[1], keys[2], keys[3], new RightState(null));
+    public Snake() {
+        super(new RightState(null));
         init();
     }
 
-    public Hadik(int[] keys, int initialLength) {
-        super(keys[0], keys[1], keys[2], keys[3], new RightState(null));
+    public Snake(int initialLength) {
+        super( new RightState(null));
         if (initialLength > 0) {
             this.initialLength = initialLength;
         }
@@ -40,11 +40,11 @@ public class Hadik extends ControllableObject {
     /**
      * Prida clanok.
      */
-    public void pridajClanok() {
+    public void addBodyPart() {
         state().pridajClanok();
     }
 
-    public void odoberClanok() {
+    public void removeBodyPart() {
         state().odoberClanok();
     }
 

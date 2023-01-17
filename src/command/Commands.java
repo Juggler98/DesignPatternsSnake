@@ -1,10 +1,11 @@
 package command;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Commands {
 
-    private static final HashMap<Integer, ICommand> commands = new HashMap<>();
+    private static final Map<Integer, ICommand> commands = new HashMap<>();
 
     public static void execute(int key) {
         ICommand command = commands.get(key);

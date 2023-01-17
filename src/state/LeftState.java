@@ -5,12 +5,12 @@ import flyweight.MyImageFactory;
 import utility.Config;
 import utility.PositionImage;
 
-import java.util.LinkedList;
+import java.util.List;
 
 public class LeftState extends SnakeState {
 
     private final static MyImage image = MyImageFactory.getOrAddImage("assets/snake_left.png");
-    public LeftState(LinkedList<PositionImage> telo) {
+    public LeftState(List<PositionImage> telo) {
         super(telo);
         if (telo != null) {
             telo.get(0).setImage(image);
@@ -30,6 +30,6 @@ public class LeftState extends SnakeState {
     @Override
     public void move() {
         super.move();
-        telo.get(0).position.x -= Config.rozmerBodu;
+        telo.get(0).position.incX(-Config.rozmerBodu);
     }
 }

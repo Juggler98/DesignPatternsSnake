@@ -19,7 +19,7 @@ public class HittableFactory {
     public static Obstacle createObstacle(Position[] positions) {
         Obstacle obstacle = new Obstacle();
         for (Position position : positions) {
-            obstacle.add(new Position(position.x * Config.rozmerBodu, position.y * Config.rozmerBodu), "assets/square.png");
+            obstacle.add(new Position(position.getX() * Config.rozmerBodu, position.getY() * Config.rozmerBodu), "assets/square.png");
         }
         return obstacle;
     }

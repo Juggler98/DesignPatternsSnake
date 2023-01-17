@@ -1,7 +1,7 @@
 package hittableModels;
 
 import controllable.ControllableObject;
-import controllable.Hadik;
+import controllable.Snake;
 
 public class Apple extends Hittable {
     public Apple(String resource) {
@@ -10,9 +10,9 @@ public class Apple extends Hittable {
 
     @Override
     public void action2(ControllableObject c) {
-        if (c instanceof Hadik) {
-            Hadik hadik = (Hadik) c;
-            hadik.pridajClanok();
+        if (c instanceof Snake) {
+            Snake snake = (Snake) c;
+            snake.addBodyPart();
         }
         move();
     }

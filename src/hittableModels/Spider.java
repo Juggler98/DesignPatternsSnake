@@ -1,7 +1,7 @@
 package hittableModels;
 
 import controllable.ControllableObject;
-import controllable.Hadik;
+import controllable.Snake;
 
 public class Spider extends Hittable {
 
@@ -14,9 +14,9 @@ public class Spider extends Hittable {
         if (c.getSize() == 1) {
             c.end();
         } else {
-            if (c instanceof Hadik) {
-                Hadik hadik = (Hadik) c;
-                hadik.odoberClanok();
+            if (c instanceof Snake) {
+                Snake snake = (Snake) c;
+                snake.removeBodyPart();
             }
         }
         move();

@@ -2,11 +2,13 @@ package appPackage;
 
 import command.*;
 import controllable.ControllableObject;
-import controllable.Hadik;
-import movingModels.IMovingObject;
+import observer.ObserverKey;
+import observer.ObserverMouse;
+import controllable.Snake;
 import observer.IObserver;
 import observer.ObservableKeyAdapter;
-import observer.Observable;
+import observer.IObservable;
+import observer.ObservableMouseListener;
 import utility.Obtiaznost;
 import hittableModels.IServant;
 import hittableModels.*;
@@ -19,11 +21,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
- * Tato metoda riadi najdolezitejsie procesy ako pohyb hada, kontroly kolizie, vstup a vystup udajov, nastavenie naročnosti...
- * Tak isto vytvari vacsinu instancii tried ako sú moving.Hadik, staticModels.Jedlo, other.Hrac, HraciePole.
+ * Tato metoda riadi najdolezitejsie procesy ako pohyb hada, kontroly kolizie, nastavenie naročnosti...
+ * Tak isto vytvari vacsinu instancii tried ako sú Snake, Hittable.
  *
  * @author (Adam Beliansky)
  * @version (a version number or a date)
@@ -33,10 +37,12 @@ import java.util.LinkedList;
  * position ?
  */
 public class App extends JPanel implements ActionListener, IObserver {
-    private final LinkedList<ControllableObject> controllableObjects = new LinkedList<>();
-    private final LinkedList<Hittable> hittableObjects = new LinkedList<>();
+    private final List<ControllableObject> controllableObjects = new ArrayList<>();
+    private final List<Hittable> hittableObjects = new LinkedList<>();
+
+    private final List<ObserverKey> controllers = new LinkedList<>();
     private Obtiaznost obtiaznost = Obtiaznost.STREDNA;
-    private boolean pauza;
+    private boolean pause;
     private final Timer timer;
     private static App instance;
 
@@ -48,19 +54,21 @@ public class App extends JPanel implements ActionListener, IObserver {
     }
 
     private App() {
-        JOptionPane.showMessageDialog(null, "Nahraj 100 bodov. Ovladanie sipkami.\nPre pauzu stlac medzernik.");
-
-        String[] moznosti = {"Lahka", "Stredna", "Tazka"};
-        int odpoved = JOptionPane.showOptionDialog(null, "Zvol si obtiaznost:", "Obtiaznost", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, moznosti, null);
-        switch (odpoved) {
-            case 0:
-                this.obtiaznost = Obtiaznost.LAHKA;
-                break;
-            case 2:
-                this.obtiaznost = Obtiaznost.TAZKA;
-                break;
-            default:
-                this.obtiaznost = Obtiaznost.STREDNA;
+        boolean showDialogs = false;
+        if (showDialogs) {
+            JOptionPane.showMessageDialog(null, "Nahraj 100 bodov. Ovladanie sipkami.\nPre pauzu stlac medzernik.");
+            String[] moznosti = {"Lahka", "Stredna", "Tazka"};
+            int odpoved = JOptionPane.showOptionDialog(null, "Zvol si obtiaznost:", "Obtiaznost", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, moznosti, null);
+            switch (odpoved) {
+                case 0:
+                    this.obtiaznost = Obtiaznost.LAHKA;
+                    break;
+                case 2:
+                    this.obtiaznost = Obtiaznost.TAZKA;
+                    break;
+                default:
+                    this.obtiaznost = Obtiaznost.STREDNA;
+            }
         }
 
         timer = new Timer(Config.middleDelay, this);
@@ -73,7 +81,7 @@ public class App extends JPanel implements ActionListener, IObserver {
 
     private void init() {
         init2();
-        this.pauza = false;
+        this.pause = false;
 
         setBackground(Color.black);
         setPreferredSize(new Dimension(Config.rozmerPlatna, Config.rozmerPlatna));
@@ -98,13 +106,25 @@ public class App extends JPanel implements ActionListener, IObserver {
 
         observableKeyAdapter.attach(this);
 
-        controllableObjects.add(new Hadik(new int[]{KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT}));
-        controllableObjects.add(new Hadik(new int[]{KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D}));
-        controllableObjects.add(new Hadik(new int[]{KeyEvent.VK_NUMPAD8, KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD4, KeyEvent.VK_NUMPAD6}));
+        controllableObjects.add(new Snake());
+        controllableObjects.add(new Snake());
+        controllableObjects.add(new Snake());
 
-        for (IMovingObject s : controllableObjects) {
-            observableKeyAdapter.attach((IObserver) s);
+        controllers.add(new ObserverKey(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, controllableObjects.get(0)));
+        controllers.add(new ObserverKey(KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, controllableObjects.get(1)));
+        controllers.add(new ObserverKey(KeyEvent.VK_NUMPAD8, KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD4, KeyEvent.VK_NUMPAD6, controllableObjects.get(2)));
+
+        for (ObserverKey k : controllers) {
+            observableKeyAdapter.attach(k);
         }
+
+        ObservableMouseListener observableMouseListener = new ObservableMouseListener();
+        addMouseListener(observableMouseListener);
+
+        ObserverMouse observerMouse = new ObserverMouse(controllableObjects.get(0));
+
+        observableMouseListener.attach(observerMouse);
+
 
         hittableObjects.add(HittableFactory.createApple());
         hittableObjects.add(HittableFactory.createSpider());
@@ -123,13 +143,13 @@ public class App extends JPanel implements ActionListener, IObserver {
     private void doDrawing(Graphics g) {
         for (Hittable s : hittableObjects) {
             for (PositionImage positionImage : s.getBody()) {
-                g.drawImage(positionImage.getImage().image, positionImage.position.x, positionImage.position.y, this);
+                g.drawImage(positionImage.getImage().image, positionImage.position.getX(), positionImage.position.getY(), this);
             }
         }
         int x = 16;
         for (ControllableObject c : controllableObjects) {
             for (PositionImage p : c.getState().getBody()) {
-                g.drawImage(p.getImage().image, p.position.x, p.position.y, this);
+                g.drawImage(p.getImage().image, p.position.getX(), p.position.getY(), this);
             }
             g.setColor(Color.WHITE);
             g.drawString(c.getSize() + "", x, 16);
@@ -143,8 +163,8 @@ public class App extends JPanel implements ActionListener, IObserver {
      */
     public void newPoint() {
         for (ControllableObject h : controllableObjects) {
-            Hadik hadik = (Hadik) h;
-            hadik.pridajClanok();
+            Snake snake = (Snake) h;
+            snake.addBodyPart();
         }
     }
 
@@ -163,8 +183,8 @@ public class App extends JPanel implements ActionListener, IObserver {
      * Pozastavi/spusti pohyb hadika.
      */
     public void pause() {
-        pauza = !pauza;
-        if (pauza) {
+        pause = !pause;
+        if (pause) {
             timer.stop();
         } else {
             timer.start();
@@ -207,7 +227,7 @@ public class App extends JPanel implements ActionListener, IObserver {
         for (int i = 0; i < controllableObjects.size(); i++) {
             ControllableObject h = controllableObjects.get(i);
             end = false;
-            if (h.getHeadPosition().x < 0 || h.getHeadPosition().x > Config.rozmerPlatna || h.getHeadPosition().y < 0 || h.getHeadPosition().y > Config.rozmerPlatna) {
+            if (h.getHeadPosition().getX() < 0 || h.getHeadPosition().getX() > Config.rozmerPlatna || h.getHeadPosition().getY() < 0 || h.getHeadPosition().getY() > Config.rozmerPlatna) {
                 h.end();
                 continue;
             }
@@ -284,10 +304,12 @@ public class App extends JPanel implements ActionListener, IObserver {
     }
 
     @Override
-    public void update(Observable observable) {
-        ObservableKeyAdapter observableKeyAdapter = (ObservableKeyAdapter) observable;
-        int key = observableKeyAdapter.getPressedKey();
-        Commands.execute(key);
+    public void update(IObservable observable) {
+        if (observable instanceof ObservableKeyAdapter) {
+            ObservableKeyAdapter observableKeyAdapter = (ObservableKeyAdapter) observable;
+            int key = observableKeyAdapter.getPressedKey();
+            Commands.execute(key);
+        }
     }
 
 }

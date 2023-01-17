@@ -1,21 +1,21 @@
 package flyweight;
 
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MyImageFactory {
-    private static final LinkedList<MyImage> images = new LinkedList<>();
+    private static final Map<String, MyImage> images = new HashMap<>();
 
     private MyImageFactory() {
 
     }
     public static MyImage getOrAddImage(String resource) {
-        for (MyImage m : images) {
-            if (m.resource.equals(resource)) {
-                return m;
-            }
+        MyImage myImage = images.get(resource);
+        if (myImage != null) {
+            return myImage;
         }
-        MyImage myImage = new MyImage(resource);
-        images.add(myImage);
+        myImage = new MyImage(resource);
+        images.put(resource, myImage);
         return myImage;
     }
 }

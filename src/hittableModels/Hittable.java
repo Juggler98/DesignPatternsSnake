@@ -8,12 +8,13 @@ import utility.Position;
 import utility.PositionImage;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 public abstract class Hittable implements IServant, IMovingObject {
 
     private final static Random random = new Random();
-    protected LinkedList<PositionImage> body = new LinkedList<>();
+    protected List<PositionImage> body = new LinkedList<>();
 
     public Hittable(String resource) {
         add(new Position(0, 0), resource);
@@ -28,7 +29,7 @@ public abstract class Hittable implements IServant, IMovingObject {
         body.add(new PositionImage(p, MyImageFactory.getOrAddImage(path)));
     }
 
-    public LinkedList<PositionImage> getBody() {
+    public List<PositionImage> getBody() {
         return body;
     }
 
@@ -46,8 +47,8 @@ public abstract class Hittable implements IServant, IMovingObject {
     @Override
     public void move() {
         for (PositionImage p : body) {
-            p.position.x = random.nextInt(Config.pocetPixelov) * Config.rozmerBodu;
-            p.position.y = random.nextInt(Config.pocetPixelov) * Config.rozmerBodu;
+            p.position.setX( random.nextInt(Config.pocetPixelov) * Config.rozmerBodu);
+            p.position.setY(random.nextInt(Config.pocetPixelov) * Config.rozmerBodu);
         }
     }
 }

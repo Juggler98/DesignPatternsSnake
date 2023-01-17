@@ -2,7 +2,7 @@ package state;
 
 import utility.PositionImage;
 
-import java.util.LinkedList;
+import java.util.List;
 
 public interface IState {
 
@@ -11,5 +11,5 @@ public interface IState {
     IState turnUp();
     IState turnDown();
     void move();
-    LinkedList<PositionImage> getBody();
+    List<PositionImage> getBody();
 }
