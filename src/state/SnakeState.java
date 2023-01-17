@@ -3,7 +3,7 @@ package state;
 import flyweight.MyImage;
 import flyweight.MyImageFactory;
 import utility.Config;
-import utility.Position;
+import flyweight.Position;
 import flyweight.PositionImage;
 
 import java.util.LinkedList;

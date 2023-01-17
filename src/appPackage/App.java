@@ -13,7 +13,7 @@ import utility.Obtiaznost;
 import hittableModels.IServant;
 import hittableModels.*;
 import utility.Config;
-import utility.Position;
+import flyweight.Position;
 import flyweight.PositionImage;
 
 import javax.swing.*;
@@ -53,7 +53,7 @@ public class App extends JPanel implements ActionListener, IObserver {
     }
 
     private App() {
-        boolean showDialogs = false;
+        boolean showDialogs = true;
         if (showDialogs) {
             JOptionPane.showMessageDialog(null, "Nahraj 100 bodov. Ovladanie sipkami.\nPre pauzu stlac medzernik.");
             String[] moznosti = {"Lahka", "Stredna", "Tazka"};
@@ -106,9 +106,11 @@ public class App extends JPanel implements ActionListener, IObserver {
 
         controllableObjects.add(new Snake());
         controllableObjects.add(new Snake());
-        controllableObjects.add(new Snake());
 
+
+        controllableObjects.add(new Snake());
         controllers.add(new ObserverKey(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, controllableObjects.get(0)));
+
         controllers.add(new ObserverKey(KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, controllableObjects.get(1)));
         controllers.add(new ObserverKey(KeyEvent.VK_NUMPAD8, KeyEvent.VK_NUMPAD5, KeyEvent.VK_NUMPAD4, KeyEvent.VK_NUMPAD6, controllableObjects.get(2)));
 

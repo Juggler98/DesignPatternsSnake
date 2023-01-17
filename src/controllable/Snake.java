@@ -2,7 +2,7 @@ package controllable;
 
 import state.RightState;
 import state.SnakeState;
-import utility.Position;
+import flyweight.Position;
 
 /**
  * Trieda moving.Hadik vytvori hadika prefarbením štvorca na červeno. moving.Hadik sa môže pohybovať dolava, doprava, hore, dole.

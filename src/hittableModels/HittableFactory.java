@@ -1,7 +1,7 @@
 package hittableModels;
 
 import utility.Config;
-import utility.Position;
+import flyweight.Position;
 
 public class HittableFactory {
 

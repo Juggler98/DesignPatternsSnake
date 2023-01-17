@@ -3,7 +3,7 @@ package controllable;
 import appPackage.App;
 import movingModels.IMovingObject;
 import state.IState;
-import utility.Position;
+import flyweight.Position;
 
 public abstract class ControllableObject implements IMovingObject {
 

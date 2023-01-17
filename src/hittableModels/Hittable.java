@@ -4,7 +4,7 @@ import controllable.ControllableObject;
 import flyweight.MyImageFactory;
 import movingModels.IMovingObject;
 import utility.Config;
-import utility.Position;
+import flyweight.Position;
 import flyweight.PositionImage;
 
 import java.util.LinkedList;

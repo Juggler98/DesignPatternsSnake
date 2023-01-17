@@ -1,7 +1,5 @@
 package flyweight;
 
-import utility.Position;
-
 public class PositionImage {
 
     public final Position position;
