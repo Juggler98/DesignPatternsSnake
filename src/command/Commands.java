@@ -18,5 +18,4 @@ public class Commands {
         commands.put(key, command);
     }
 
-
 }

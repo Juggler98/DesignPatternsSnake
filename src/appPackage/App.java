@@ -124,7 +124,6 @@ public class App extends JPanel implements ActionListener, IObserver {
         ObserverMouse observerMouse = new ObserverMouse(controllableObjects.get(0));
         observableMouseListener.attach(observerMouse);
 
-
         hittableObjects.add(HittableFactory.createApple());
         hittableObjects.add(HittableFactory.createSpider());
 

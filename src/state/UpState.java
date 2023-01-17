@@ -10,6 +10,7 @@ import java.util.List;
 public class UpState extends SnakeState {
 
     private final static MyImage image = MyImageFactory.getOrAddImage("assets/snake_up.png");
+
     public UpState(List<PositionImage> telo) {
         super(telo);
         if (telo != null) {

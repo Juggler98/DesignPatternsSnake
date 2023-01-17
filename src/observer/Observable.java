@@ -6,6 +6,7 @@ import java.util.List;
 public abstract class Observable implements IObservable {
 
     private final List<IObserver> observers = new LinkedList<>();
+
     @Override
     public void attach(IObserver observer) {
         observers.add(observer);
